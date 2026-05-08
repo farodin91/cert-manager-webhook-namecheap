@@ -1,5 +1,15 @@
 # cert-manager webhook for Namecheap
 
+Forked from [kelvie/cert-manager-webhook-namecheap](https://github.com/kelvie/cert-manager-webhook-namecheap), with the following fixes for the long-standing "TXT records never appear in Namecheap" problem:
+
+- **Check `IsSuccess` on `SetHosts` responses.** The upstream SDK only inspects `<Errors>`; Namecheap can return HTTP 200 with `IsSuccess="false"` and an empty error list, which the previous code reported to cert-manager as success.
+- **Stop caching the Namecheap client across challenges.** A cached client kept stale credentials when multiple Issuers used different secrets.
+- **Serialize `GetHosts` + `SetHosts`.** `SetHosts` is a full record-set replacement, so concurrent SAN challenges raced and clobbered each other.
+- **Make `Present` idempotent.** cert-manager calls `Present` repeatedly during self-checks; the previous version appended a duplicate TXT record every time.
+- **Apex (`@`) handling, whitespace-trimmed secrets, drop unsupported `EmailType` values** that fail SDK validation when round-tripped.
+- **Verbose `klog` logging** for `Present` / `CleanUp` so the failure mode is visible in webhook logs.
+- Bumped `github.com/namecheap/go-namecheap-sdk/v2` to `v2.4.1`.
+
 # Instructions for use with Let's Encrypt
 
 Thanks to [Addison van den Hoeven](https://github.com/Addyvan), from https://github.com/jetstack/cert-manager/issues/646

@@ -17,3 +17,4 @@ cert-manager-webhook-namecheap
 # Make artifacts
 _out
 _test
+.idea
