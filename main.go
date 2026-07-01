@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 
@@ -23,6 +25,8 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+const DEFAULT_TTL = 60
 
 var GroupName = os.Getenv("GROUP_NAME")
 
@@ -216,7 +220,10 @@ func (c *namecheapDNSProviderSolver) getSecret(ref *cmmeta.SecretKeySelector, na
 // cached the client on the solver, which silently used stale credentials when
 // multiple Issuers with different secrets were configured against the same
 // webhook deployment.
-func (c *namecheapDNSProviderSolver) newNamecheapClient(ch *v1alpha1.ChallengeRequest, cfg namecheapDNSProviderConfig) (NamecheapClient, error) {
+func (c *namecheapDNSProviderSolver) newNamecheapClient(
+	ch *v1alpha1.ChallengeRequest,
+	cfg namecheapDNSProviderConfig,
+) (NamecheapClient, error) {
 	apiKey, err := c.getSecret(cfg.APIKeySecretRef, ch.ResourceNamespace)
 	if err != nil {
 		return nil, err
@@ -308,7 +315,7 @@ func (d *Domain) addChallengeRecord(host, key string) bool {
 			Name:    &host,
 			Type:    namecheap.String(namecheap.RecordTypeTXT),
 			Address: namecheap.String(key),
-			TTL:     namecheap.Int(60),
+			TTL:     namecheap.Int(DEFAULT_TTL),
 		},
 	)
 	return false
@@ -326,7 +333,7 @@ func (d *Domain) removeChallengeRecord(host, key string) bool {
 			*r.Type == namecheap.RecordTypeTXT &&
 			*r.Address == key {
 			records := *d.Records
-			*d.Records = append(records[:i], records[i+1:]...)
+			*d.Records = slices.Concat(records[:i], records[i+1:])
 			return true
 		}
 	}
@@ -356,7 +363,7 @@ func (c *namecheapClientImpl) SetDomain(domain Domain) error {
 		}
 
 		if record.MXPref != nil {
-			r.MXPref = namecheap.UInt8(uint8(*record.MXPref))
+			r.MXPref = namecheap.UInt8(uint8(*record.MXPref)) //nolint:gosec
 		}
 		records = append(records, r)
 	}
@@ -375,7 +382,9 @@ func (c *namecheapClientImpl) SetDomain(domain Domain) error {
 		return fmt.Errorf("namecheap SetHosts: empty response")
 	}
 	if resp.DomainDNSSetHostsResult.IsSuccess == nil || !*resp.DomainDNSSetHostsResult.IsSuccess {
-		return fmt.Errorf("namecheap SetHosts reported IsSuccess=false for domain %s — the API silently rejected the change (check API key, ApiUser, whitelisted ClientIp, and that the account actually owns this domain)",
+		return fmt.Errorf("namecheap SetHosts reported IsSuccess=false for domain %s — "+
+			"the API silently rejected the change "+
+			"(check API key, ApiUser, whitelisted ClientIp, and that the account actually owns this domain)",
 			derefString(domain.Name))
 	}
 	return nil
@@ -436,7 +445,10 @@ func getOutboundIP() (*net.IP, error) {
 	}
 	defer conn.Close()
 
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	localAddr, ok := conn.LocalAddr().(*net.UDPAddr)
+	if ok {
+		return nil, errors.New("expect UDPAddr")
+	}
 
 	return &localAddr.IP, nil
 }
