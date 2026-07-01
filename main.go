@@ -115,6 +115,7 @@ func (c *namecheapDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) erro
 		return fmt.Errorf("namecheap GetHosts(%s) failed: %w", zone, err)
 	}
 
+	klog.Infof("Present: add challenge record for %s", *d.Name)
 	if d.addChallengeRecord(host, ch.Key) {
 		klog.Infof("Present: TXT record for %s already exists, skipping update", host)
 		return nil
@@ -314,8 +315,8 @@ func (d *Domain) addChallengeRecord(host, key string) bool {
 		Record{
 			Name:    &host,
 			Type:    namecheap.String(namecheap.RecordTypeTXT),
-			Address: namecheap.String(key),
-			TTL:     namecheap.Int(DEFAULT_TTL),
+			Address: new(key),
+			TTL:     new(DEFAULT_TTL),
 		},
 	)
 	return false
@@ -348,7 +349,7 @@ func (c *namecheapClientImpl) SetDomain(domain Domain) error {
 	// values like "FREE" or unknown types from GetHosts blows up validation
 	// before the request is even sent. Only forward values the SDK accepts.
 	if domain.EmailType != nil {
-		if isAllowedEmailType(*domain.EmailType) {
+		if slices.Contains(namecheap.AllowedEmailTypeValues, *domain.EmailType) {
 			args.EmailType = domain.EmailType
 		}
 	}
@@ -363,7 +364,7 @@ func (c *namecheapClientImpl) SetDomain(domain Domain) error {
 		}
 
 		if record.MXPref != nil {
-			r.MXPref = namecheap.UInt8(uint8(*record.MXPref)) //nolint:gosec
+			r.MXPref = new(uint8(*record.MXPref)) //nolint:gosec
 		}
 		records = append(records, r)
 	}
@@ -419,15 +420,6 @@ func (c *namecheapClientImpl) GetDomain(domain string) (*Domain, error) {
 	d.Records = &records
 
 	return d, nil
-}
-
-func isAllowedEmailType(v string) bool {
-	for _, a := range namecheap.AllowedEmailTypeValues {
-		if v == a {
-			return true
-		}
-	}
-	return false
 }
 
 func derefString(s *string) string {
