@@ -2,10 +2,9 @@ name: Build and publish image
 
 on:
   push:
-    branches: [main]
-    tags: ['v*']
+    tags: ["v*"]
   pull_request:
-    branches: [main]
+    branches: ["main", "dev"]
   workflow_dispatch:
 
 env:
