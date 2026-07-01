@@ -261,8 +261,9 @@ func (c *namecheapDNSProviderSolver) newNamecheapClient(ch *v1alpha1.ChallengeRe
 func (c *namecheapDNSProviderSolver) parseChallenge(ch *v1alpha1.ChallengeRequest) (
 	zone string, host string, err error,
 ) {
+	ctx := context.Background()
 
-	if zone, err = util.FindZoneByFqdn(
+	if zone, err = util.FindZoneByFqdn(ctx,
 		ch.ResolvedFQDN, util.RecursiveNameservers,
 	); err != nil {
 		return "", "", err
