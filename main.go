@@ -438,7 +438,7 @@ func getOutboundIP() (*net.IP, error) {
 	defer conn.Close()
 
 	localAddr, ok := conn.LocalAddr().(*net.UDPAddr)
-	if ok {
+	if !ok {
 		return nil, errors.New("expect UDPAddr")
 	}
 
