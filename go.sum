@@ -296,6 +296,8 @@ github.com/namecheap/go-namecheap-sdk/v2 v2.4.1 h1:Wt6+blixIhynSxuA7aCBmTsHJw6kO
 github.com/namecheap/go-namecheap-sdk/v2 v2.4.1/go.mod h1:atTXxSHfBi58svJ75GazNbKCsgA4ZSOlD8mil/IaSa4=
 github.com/namecheap/go-namecheap-sdk/v2 v2.6.4 h1:+pp0PYmuU38baQqf0M+H2XdYH5HbUV8RvircvdCaw18=
 github.com/namecheap/go-namecheap-sdk/v2 v2.6.4/go.mod h1:mRYlg0/1tlJB9UcrPn6BtcnT6KL8yUP8P2JLGbyhn4Y=
+github.com/namecheap/go-namecheap-sdk/v2 v2.7.0 h1:xhHjik8DIZV/KIFmwcsT1r91a8zlmdaMiCAWj5qlJ0Y=
+github.com/namecheap/go-namecheap-sdk/v2 v2.7.0/go.mod h1:dEsO2ak1a+roZR8GNibA0if0Y+YMbyZPxFk0Q8UgeUs=
 github.com/onsi/ginkgo/v2 v2.9.5 h1:+6Hr4uxzP4XIUyAkg61dWBw8lb/gc4/X5luuxN/EC+Q=
 github.com/onsi/ginkgo/v2 v2.9.5/go.mod h1:tvAoo1QUJwNEU2ITftXTpR7R1RbCzoZUOs3RonqW57k=
 github.com/onsi/ginkgo/v2 v2.27.4 h1:fcEcQW/A++6aZAZQNUmNjvA9PSOzefMJBerHJ4t8v8Y=
