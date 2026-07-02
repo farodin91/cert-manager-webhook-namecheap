@@ -4,7 +4,7 @@ go 1.26.3
 
 require (
 	github.com/cert-manager/cert-manager v1.20.3
-	github.com/namecheap/go-namecheap-sdk/v2 v2.6.4
+	github.com/namecheap/go-namecheap-sdk/v2 v2.7.0
 	k8s.io/apiextensions-apiserver v0.36.2
 	k8s.io/apimachinery v0.36.2
 	k8s.io/client-go v0.36.2
