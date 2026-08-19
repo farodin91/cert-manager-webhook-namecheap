@@ -1,7 +1,7 @@
 # Build stage runs natively on the builder's arch (BUILDPLATFORM) and
 # cross-compiles to TARGETPLATFORM. This avoids QEMU emulating `go build`,
 # which is the slow part of multiarch builds (~10x speedup for arm64).
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine3.23 AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine3.23 AS build
 
 RUN apk add --no-cache git
 
